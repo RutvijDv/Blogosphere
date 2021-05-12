@@ -154,13 +154,22 @@ app.get("/userArticles/:title", authenticateToken, function (req, res) {
 });
 
 app.put("/userArticles/:title", authenticateToken, function (req, res) {
-  Blog.updateOne(
-    { title: req.params.title },
+  Blog.findOneAndUpdate(
+    { title: req.params.title, author_id: req.user._id },
     { title: req.body.title, content: req.body.content },
-    { overwrite: true },
     function (err) {
       if (err) res.send(err);
       else res.send("Article updated successfully");
+    }
+  );
+});
+
+app.delete("/userArticles/:title", authenticateToken, function (req, res) {
+  Blog.deleteOne(
+    { title: req.params.title, author_id: req.user._id },
+    function (err) {
+      if (err) res.send(err);
+      else res.send("Article deleted successfully");
     }
   );
 });
