@@ -116,8 +116,15 @@ app.get("/articles", function (req, res) {
   });
 });
 
+app.get("/articles/:title", function (req, res) {
+  Blog.find({ title: req.params.title }, function (err, foundBlogs) {
+    if (err) res.send(err);
+    else res.send(foundBlogs);
+  });
+});
+
 app.get("/userArticles", authenticateToken, (req, res) => {
-  Blog.find({ author_id: req.user.id }, function (err, foundBlogs) {
+  Blog.find({ author_id: req.user._id }, function (err, foundBlogs) {
     if (err) res.send(err);
     else res.send(foundBlogs);
   });
@@ -134,6 +141,28 @@ app.post("/userArticles", authenticateToken, function (req, res) {
     if (err) res.send(err);
     else res.send("Article Saved Successfully");
   });
+});
+
+app.get("/userArticles/:title", authenticateToken, function (req, res) {
+  Blog.find(
+    { title: req.params.title, author_id: req.user._id },
+    function (err, foundBlogs) {
+      if (err) res.send(err);
+      else res.send(foundBlogs);
+    }
+  );
+});
+
+app.put("/userArticles/:title", authenticateToken, function (req, res) {
+  Blog.updateOne(
+    { title: req.params.title },
+    { title: req.body.title, content: req.body.content },
+    { overwrite: true },
+    function (err) {
+      if (err) res.send(err);
+      else res.send("Article updated successfully");
+    }
+  );
 });
 
 app.listen(3000, function () {
