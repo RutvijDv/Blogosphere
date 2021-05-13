@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const ejs = require("ejs");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -80,7 +79,7 @@ app.route("/login").post(function (req, res) {
               process.env.ACCESS_TOKEN_SECRET
             );
             res.send(accessToken);
-          } else res.send("wrong password");
+          } else res.send("Wrong password");
         }
       });
     } else res.send("Please Sign Up");
@@ -88,7 +87,6 @@ app.route("/login").post(function (req, res) {
 });
 
 function authenticateToken(req, res, next) {
-  console.log("HERE");
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.sendStatus(401);
@@ -112,6 +110,7 @@ app.get("/deleteUser", authenticateToken, function (req, res) {
 app.get("/articles", function (req, res) {
   Blog.find(function (err, foundBlogs) {
     if (err) res.send(err);
+    else if (!foundBlogs) res.send("No Articles found");
     else res.send(foundBlogs);
   });
 });
@@ -119,6 +118,7 @@ app.get("/articles", function (req, res) {
 app.get("/articles/:title", function (req, res) {
   Blog.find({ title: req.params.title }, function (err, foundBlogs) {
     if (err) res.send(err);
+    else if (!foundBlogs) res.send("No Articles found");
     else res.send(foundBlogs);
   });
 });
@@ -126,6 +126,7 @@ app.get("/articles/:title", function (req, res) {
 app.get("/userArticles", authenticateToken, (req, res) => {
   Blog.find({ author_id: req.user._id }, function (err, foundBlogs) {
     if (err) res.send(err);
+    else if (!foundBlogs) res.send("No Articles found");
     else res.send(foundBlogs);
   });
 });
@@ -148,6 +149,7 @@ app.get("/userArticles/:title", authenticateToken, function (req, res) {
     { title: req.params.title, author_id: req.user._id },
     function (err, foundBlogs) {
       if (err) res.send(err);
+      else if (!foundBlogs) res.send("No Articles found");
       else res.send(foundBlogs);
     }
   );
