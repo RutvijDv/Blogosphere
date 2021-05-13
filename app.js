@@ -73,12 +73,11 @@ app.route("/login").post(function (req, res) {
         if (err) res.send(err);
         else {
           if (result) {
-            console.log(user);
             const accessToken = jwt.sign(
               { username: user.username, _id: user._id },
               process.env.ACCESS_TOKEN_SECRET
             );
-            res.send(accessToken);
+            res.json({ token: "ACCESS-TOKEN : " + accessToken });
           } else res.send("Wrong password");
         }
       });
@@ -93,14 +92,12 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.send(err);
-    console.log(user);
     req.user = user;
     next();
   });
 }
 
-app.get("/deleteUser", authenticateToken, function (req, res) {
-  console.log(req.user);
+app.delete("/deleteUser", authenticateToken, function (req, res) {
   User.findByIdAndDelete(req.user._id, function (err) {
     if (err) res.send(err);
     else res.send("User deleted successfully");
@@ -176,6 +173,6 @@ app.delete("/userArticles/:title", authenticateToken, function (req, res) {
   );
 });
 
-app.listen(3000, function () {
+module.exports = app.listen(3000, function () {
   console.log("Server started on port 3000");
 });
